@@ -1,5 +1,6 @@
 package com.algo.models;
 
+import com.algo.common.JsonMappable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class CreateChallengeRequest {
+public class CreateChallengeRequest extends JsonMappable {
 
     private String challengerId;
 
