@@ -3,8 +3,8 @@ package com.algo.common;
 public abstract class Endpoints {
 
     public static final String BASE_URL = "http://localhost:8080";
-    public static final String SIGN_IN = "/player/sign-in";
-    public static final String SIGN_UP = "/player/sign-up";
+    public static final String SIGN_IN = "/players/sign-in";
+    public static final String SIGN_UP = "/players/sign-up";
     public static final String GET_PLAYER = "/players/%s";
     public static final String UPDATE_PLAYER = "/players/%s";
     public static final String DELETE_PLAYER = "/players/%s";
