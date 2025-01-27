@@ -34,22 +34,25 @@ public class PlayerClient {
         return getPlayerResponse(httpClient, request);
     }
 
-    public Player signUp(LoginRequest loginRequest) {
+    public CompletableFuture<Player> signUp(LoginRequest loginRequest) {
         HttpClient httpClient = HttpClientSingleton.getInstance();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(Endpoints.BASE_URL + Endpoints.SIGN_UP))
                 .header("Content-Type", MediaType.APPLICATION_JSON)
                 .POST(HttpRequest.BodyPublishers.ofString(loginRequest.toJson()))
                 .build();
-        HttpResponse<String> response = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).join();
-        if (response.statusCode() == 201) {
-            try {
-                return Player.fromJson(response.body(), Player.class);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to parse response", e);
-            }
-        }
-        throw new RuntimeException(response.body());
+        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(
+                response -> {
+                    if (response.statusCode() == 201) {
+                        try {
+                            return Player.fromJson(response.body(), Player.class);
+                        } catch (Exception e) {
+                            throw new RuntimeException("Failed to parse response", e);
+                        }
+                    }
+                    throw new RuntimeException(response.body());
+                }
+        );
     }
 
     public CompletableFuture<Player> getPlayer(String id) {
@@ -86,42 +89,49 @@ public class PlayerClient {
         return getPlayerResponse(httpClient, request);
     }
 
-    public void deletePlayer(String id) {
+    public CompletableFuture<Boolean> deletePlayer(String id) {
         HttpClient httpClient = HttpClientSingleton.getInstance();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(Endpoints.BASE_URL + Endpoints.injectStringIntoPath(Endpoints.DELETE_PLAYER, id)))
                 .header("Content-Type", MediaType.APPLICATION_JSON)
                 .DELETE()
                 .build();
-        HttpResponse<String> response = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).join();
-        if (response.statusCode() != 204) {
-            throw new RuntimeException(response.body());
-        }
+        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(
+                response -> {
+                    if (response.statusCode() == 204) {
+                        return true;
+                    }
+                    throw new RuntimeException(response.body());
+                }
+        );
     }
 
-    public List<Player> getPlayersSorted() {
+    public CompletableFuture<List<Player>> getPlayersSorted() {
         HttpClient httpClient = HttpClientSingleton.getInstance();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(Endpoints.BASE_URL + Endpoints.GET_PLAYERS_SORTED))
                 .header("Content-Type", MediaType.APPLICATION_JSON)
                 .GET()
                 .build();
-        HttpResponse<String> response = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).join();
-        if (response.statusCode() == 200) {
-            try {
-                List<String> playerJsonList = ObjectMapperSingleton.getInstance().readValue(response.body(), List.class);
-                List<Player> players = new ArrayList<>();
-                for (String playerJson : playerJsonList) {
-                    Player player = Player.fromJson(playerJson, Player.class);
-                    players.add(player);
-                }
-                return players;
+        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(
+                response -> {
+                    if (response.statusCode() == 200) {
+                        try {
+                            List<String> playerJsonList = ObjectMapperSingleton.getInstance().readValue(response.body(), List.class);
+                            List<Player> players = new ArrayList<>();
+                            for (String playerJson : playerJsonList) {
+                                Player player = Player.fromJson(playerJson, Player.class);
+                                players.add(player);
+                            }
+                            return players;
 
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to parse response", e);
-            }
-        }
-        throw new RuntimeException(response.body());
+                        } catch (Exception e) {
+                            throw new RuntimeException("Failed to parse response", e);
+                        }
+                    }
+                    throw new RuntimeException(response.body());
+                }
+        );
     }
     private CompletableFuture<Player> getPlayerResponse(HttpClient httpClient, HttpRequest request) {
         return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(

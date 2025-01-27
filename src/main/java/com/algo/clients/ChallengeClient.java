@@ -119,7 +119,7 @@ public class ChallengeClient {
                 .header("Content-Type", MediaType.APPLICATION_JSON)
                 .method("PATCH", HttpRequest.BodyPublishers.noBody())
                 .build();
-        httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(
+        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(
                 response -> {
                     if (response.statusCode() != 200) {
                         throw new RuntimeException(response.body());
@@ -127,7 +127,6 @@ public class ChallengeClient {
                     return true;
                 }
         );
-        return null;
     }
 
     public CompletableFuture<Boolean> deleteChallenge(String id) {
@@ -137,7 +136,7 @@ public class ChallengeClient {
                 .header("Content-Type", MediaType.APPLICATION_JSON)
                 .DELETE()
                 .build();
-        httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(
+        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(
                 response -> {
                     if (response.statusCode() != 204) {
                         throw new RuntimeException(response.body());
@@ -145,7 +144,6 @@ public class ChallengeClient {
                     return true;
                 }
         );
-        return null;
     }
 
     private HttpRequest.BodyPublisher buildFormData(UpdateChallengeRequest updateChallengeRequest) {
