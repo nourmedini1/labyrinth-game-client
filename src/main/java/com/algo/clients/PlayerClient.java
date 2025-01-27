@@ -18,12 +18,13 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 
 @ApplicationScoped
 public class PlayerClient {
 
-    public Player signIn(LoginRequest loginRequest) {
+    public CompletableFuture<Player> signIn(LoginRequest loginRequest) {
         HttpClient httpClient = HttpClientSingleton.getInstance();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(Endpoints.BASE_URL + Endpoints.SIGN_IN))
@@ -51,7 +52,7 @@ public class PlayerClient {
         throw new RuntimeException(response.body());
     }
 
-    public Player getPlayer(String id) {
+    public CompletableFuture<Player> getPlayer(String id) {
         HttpClient httpClient = HttpClientSingleton.getInstance();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(Endpoints.BASE_URL + Endpoints.injectStringIntoPath(Endpoints.GET_PLAYER, id)))
@@ -61,7 +62,7 @@ public class PlayerClient {
         return getPlayerResponse(httpClient, request);
     }
 
-    public Player getPlayerByName(String name) {
+    public CompletableFuture<Player> getPlayerByName(String name) {
         HttpClient httpClient = HttpClientSingleton.getInstance();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(Endpoints.BASE_URL + Endpoints.injectStringIntoPath(Endpoints.GET_PLAYER_BY_NAME, name)))
@@ -71,7 +72,7 @@ public class PlayerClient {
         return getPlayerResponse(httpClient, request);
     }
 
-    public Player updatePlayer(String id,UpdatePlayerRequest updatePlayerRequest) {
+    public CompletableFuture<Player> updatePlayer(String id, UpdatePlayerRequest updatePlayerRequest) {
         HttpClient httpClient = HttpClientSingleton.getInstance();
         HashMap<String, Object> params = new HashMap<>();
         params.put("name", updatePlayerRequest.getName());
@@ -79,8 +80,8 @@ public class PlayerClient {
         String formData =  HttpHelper.createFormUrlEncodedBody(params);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(Endpoints.BASE_URL + Endpoints.injectStringIntoPath(Endpoints.UPDATE_PLAYER, id)))
-                .header("Content-Type", MediaType.MULTIPART_FORM_DATA)
-                .PUT(HttpRequest.BodyPublishers.ofString(formData))
+                .header("Content-Type", "multipart/form-data; boundary=---boundary")
+                .PUT(buildFormData(updatePlayerRequest))
                 .build();
         return getPlayerResponse(httpClient, request);
     }
@@ -122,16 +123,31 @@ public class PlayerClient {
         }
         throw new RuntimeException(response.body());
     }
-    private Player getPlayerResponse(HttpClient httpClient, HttpRequest request) {
-        HttpResponse<String> response = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).join();
-        if (response.statusCode() == 200) {
-            try {
-                return Player.fromJson(response.body(), Player.class);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to parse response", e);
-            }
+    private CompletableFuture<Player> getPlayerResponse(HttpClient httpClient, HttpRequest request) {
+        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(
+                response -> {
+                    if (response.statusCode() == 200) {
+                        try {
+                            return Player.fromJson(response.body(), Player.class);
+                        } catch (Exception e) {
+                            throw new RuntimeException("Failed to parse response", e);
+                        }
+                    }
+                    throw new RuntimeException(response.body());
+                }
+        );
+    }
+
+    private HttpRequest.BodyPublisher buildFormData(UpdatePlayerRequest updatePlayerRequest) {
+        List<byte[]> byteArrays = new ArrayList<>();
+        if (updatePlayerRequest.getName() != null) {
+            byteArrays.add(("--boundary\r\nContent-Disposition: form-data; name=\"name\"\r\n\r\n" + updatePlayerRequest.getName() + "\r\n").getBytes());
         }
-        throw new RuntimeException(response.body());
+        if (updatePlayerRequest.getScore() != 0) {
+            byteArrays.add(("--boundary\r\nContent-Disposition: form-data; name=\"score\"\r\n\r\n" + updatePlayerRequest.getScore() + "\r\n").getBytes());
+        }
+        byteArrays.add("\r\n--boundary--\r\n".getBytes());
+        return HttpRequest.BodyPublishers.ofByteArrays(byteArrays);
     }
 
 

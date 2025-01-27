@@ -16,11 +16,12 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @ApplicationScoped
 public class ChallengeClient {
 
-    public Challenge createChallenge(CreateChallengeRequest createChallengeRequest) {
+    public CompletableFuture<Challenge> createChallenge(CreateChallengeRequest createChallengeRequest) {
         HttpClient httpClient = HttpClientSingleton.getInstance();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(Endpoints.BASE_URL + Endpoints.CREATE_CHALLENGE))
@@ -28,105 +29,135 @@ public class ChallengeClient {
                 .POST(HttpRequest.BodyPublishers.ofString(createChallengeRequest.toJson()))
                 .build();
 
-        HttpResponse<String> response = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).join();
-        if (response.statusCode() == 201) {
-            try {
-                return Challenge.fromJson(response.body(), Challenge.class);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to parse response", e);
-            }
-        }
-        throw new RuntimeException(response.body());
+        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(
+                response -> {
+                    if (response.statusCode() == 201) {
+                        try {
+                            return Challenge.fromJson(response.body(), Challenge.class);
+                        } catch (Exception e) {
+                            throw new RuntimeException("Failed to parse response", e);
+                        }
+                    }
+                    throw new RuntimeException(response.body());
+                }
+        );
     }
 
-    public UpdateChallengeResponse updateChallenge(UpdateChallengeRequest updateChallengeRequest) {
+    public CompletableFuture<UpdateChallengeResponse> updateChallenge(UpdateChallengeRequest updateChallengeRequest) {
         HttpClient httpClient = HttpClientSingleton.getInstance();
-        HashMap<String,Object> params = new HashMap<>();
-        params.put("challengerScore", updateChallengeRequest.getChallengerScore());
-        params.put("challengedScore", updateChallengeRequest.getChallengedScore());
-        String formData = HttpHelper.createFormUrlEncodedBody(params);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(Endpoints.BASE_URL + Endpoints.UPDATE_CHALLENGE))
-                .header("Content-Type", MediaType.MULTIPART_FORM_DATA)
-                .PUT(HttpRequest.BodyPublishers.ofString(formData))
+                .header("Content-Type", "multipart/form-data; boundary=---boundary")
+                .PUT(buildFormData(updateChallengeRequest))
                 .build();
-        HttpResponse<String> response = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).join();
-        if (response.statusCode() == 200) {
-            try {
-                return UpdateChallengeResponse.fromJson(response.body(), UpdateChallengeResponse.class);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to parse response", e);
-            }
-        }
-        throw new RuntimeException(response.body());
+        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(
+                response -> {
+                    if (response.statusCode() == 200) {
+                        try {
+                            return UpdateChallengeResponse.fromJson(response.body(), UpdateChallengeResponse.class);
+                        } catch (Exception e) {
+                            throw new RuntimeException("Failed to parse response", e);
+                        }
+                    }
+                    throw new RuntimeException(response.body());
+                }
+        );
     }
 
-    public List<Challenge> getChallenges(HashMap<String, Object> params) {
+    public CompletableFuture<List<Challenge>> getChallenges(HashMap<String, Object> params) {
         HttpClient httpClient = HttpClientSingleton.getInstance();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(Endpoints.BASE_URL + Endpoints.GET_CHALLENGES + HttpHelper.createQueryString(params)))
                 .header("Content-Type", MediaType.APPLICATION_JSON)
                 .GET()
                 .build();
-        HttpResponse<String> response = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).join();
-        if (response.statusCode() == 200) {
-            try {
-                ObjectMapper objectMapper = ObjectMapperSingleton.getInstance();
-                List<String> challengesJsonList = objectMapper.readValue(response.body(), List.class);
-                List<Challenge> challenges = new ArrayList<>();
-                for (String challengeJson : challengesJsonList) {;
-                    challenges.add(Challenge.fromJson(challengeJson, Challenge.class));
+        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(
+                response -> {
+                    if (response.statusCode() == 200) {
+                        try {
+                            ObjectMapper objectMapper = ObjectMapperSingleton.getInstance();
+                            List<String> challengesJsonList = objectMapper.readValue(response.body(), List.class);
+                            List<Challenge> challenges = new ArrayList<>();
+                            for (String challengeJson : challengesJsonList) {
+                                challenges.add(Challenge.fromJson(challengeJson, Challenge.class));
+                            }
+                            return challenges;
+                        } catch (Exception e) {
+                            throw new RuntimeException("Failed to parse response", e);
+                        }
+                    }
+                    throw new RuntimeException(response.body());
                 }
-                return challenges;
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to parse response", e);
-            }
-        }
-        throw new RuntimeException(response.body());
+        );
     }
 
-    public Challenge acceptChallenge(String id) {
+    public CompletableFuture<Challenge> acceptChallenge(String id) {
         HttpClient httpClient = HttpClientSingleton.getInstance();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(Endpoints.BASE_URL + Endpoints.injectStringIntoPath(Endpoints.ACCEPT_CHALLENGE, id)))
                 .header("Content-Type", MediaType.APPLICATION_JSON)
                 .method("PATCH", HttpRequest.BodyPublishers.noBody())
                 .build();
-        HttpResponse<String> response = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).join();
-        if (response.statusCode() == 200) {
-            try {
-                return Challenge.fromJson(response.body(), Challenge.class);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to parse response", e);
-            }
-        }
-        throw new RuntimeException(response.body());
+        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(
+                response -> {
+                    if (response.statusCode() == 200) {
+                        try {
+                            return Challenge.fromJson(response.body(), Challenge.class);
+                        } catch (Exception e) {
+                            throw new RuntimeException("Failed to parse response", e);
+                        }
+                    }
+                    throw new RuntimeException(response.body());
+                }
+        );
     }
 
-    public void declineChallenge(String id) {
+    public CompletableFuture<Boolean> declineChallenge(String id) {
         HttpClient httpClient = HttpClientSingleton.getInstance();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(Endpoints.BASE_URL + Endpoints.injectStringIntoPath(Endpoints.DECLINE_CHALLENGE, id)))
                 .header("Content-Type", MediaType.APPLICATION_JSON)
                 .method("PATCH", HttpRequest.BodyPublishers.noBody())
                 .build();
-        HttpResponse<String> response = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).join();
-        if (response.statusCode() != 200) {
-            throw new RuntimeException(response.body());
-        }
+        httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(
+                response -> {
+                    if (response.statusCode() != 200) {
+                        throw new RuntimeException(response.body());
+                    }
+                    return true;
+                }
+        );
+        return null;
     }
 
-    public void deleteChallenge(String id) {
+    public CompletableFuture<Boolean> deleteChallenge(String id) {
         HttpClient httpClient = HttpClientSingleton.getInstance();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(Endpoints.BASE_URL + Endpoints.injectStringIntoPath(Endpoints.DELETE_CHALLENGE, id)))
                 .header("Content-Type", MediaType.APPLICATION_JSON)
                 .DELETE()
                 .build();
-        HttpResponse<String> response = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).join();
-        if (response.statusCode() != 204) {
-            throw new RuntimeException(response.body());
+        httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(
+                response -> {
+                    if (response.statusCode() != 204) {
+                        throw new RuntimeException(response.body());
+                    }
+                    return true;
+                }
+        );
+        return null;
+    }
+
+    private HttpRequest.BodyPublisher buildFormData(UpdateChallengeRequest updateChallengeRequest) {
+        List<byte[]> byteArrays = new ArrayList<>();
+        if (updateChallengeRequest.getChallengerScore() != null) {
+            byteArrays.add(("--boundary\r\nContent-Disposition: form-data; name=\"challengerScore\"\r\n\r\n" + updateChallengeRequest.getChallengerScore() + "\r\n").getBytes());
         }
+        if (updateChallengeRequest.getChallengedScore() != null) {
+            byteArrays.add(("--boundary\r\nContent-Disposition: form-data; name=\"challengedScore\"\r\n\r\n" + updateChallengeRequest.getChallengedScore() + "\r\n").getBytes());
+        }
+        byteArrays.add("--boundary--\r\n".getBytes());
+        return HttpRequest.BodyPublishers.ofByteArrays(byteArrays);
     }
 }
 
