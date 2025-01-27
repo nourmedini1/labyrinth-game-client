@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 public class SignUp {
 
-    public Player signUpPlayer() {
+    public static void signUpPlayer(Player player) {
         System.out.print("=========================================");
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter your username: ");
@@ -15,12 +15,12 @@ public class SignUp {
         LoginRequest loginRequest = new LoginRequest(username);
         PlayerClient playerClient = new PlayerClient();
         try {
-            Player player = playerClient.signUp(loginRequest);
+            player = playerClient.signUp(loginRequest);
             System.out.println("Signed up player: " + player.getName());
-            return player;
+
         } catch (Exception e) {
             System.out.println("Error during sign-up: " + e.getMessage());
-            return null;
+
         }
     }
 

@@ -5,9 +5,9 @@ import com.algo.models.LoginRequest;
 import com.algo.models.Player;
 import java.util.Scanner;
 
-public class SignIn {
+public class  SignIn {
 
-    public Player signInPlayer() {
+    public static void signInPlayer(Player player) {
         System.out.print("=========================================");
         System.out.println("Enter your username to sign in.");
         System.out.print("=========================================");
@@ -17,12 +17,12 @@ public class SignIn {
         LoginRequest loginRequest = new LoginRequest(username);
         PlayerClient playerClient = new PlayerClient();
         try {
-            Player player = playerClient.signIn(loginRequest);
+            player = playerClient.signIn(loginRequest);
             System.out.println("Signed in as: " + player.getName());
-            return player;
+
         } catch (Exception e) {
             System.out.println("Error during sign-in: " + e.getMessage());
-            return null;
+
         }
     }
 
