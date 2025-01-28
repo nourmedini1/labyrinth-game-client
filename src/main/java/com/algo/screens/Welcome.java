@@ -17,7 +17,8 @@ public class Welcome {
         System.out.println("1. Sign In");
         System.out.println("2. Sign Up");
         System.out.println("===================================");
-        System.out.print("Choose an option (1 or 2): ");
+        System.out.println("Choose an option (1 or 2): ");
+
 
         String choice = scanner.nextLine();
 
@@ -40,7 +41,7 @@ public class Welcome {
 
 
 
-    public void displayLogo(){
+    public static void displayLogo(){
 
         //the ASCII art:
         String asciiArt = """

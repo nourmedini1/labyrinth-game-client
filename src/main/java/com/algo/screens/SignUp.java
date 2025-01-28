@@ -8,9 +8,9 @@ import java.util.Scanner;
 public class SignUp {
 
     public static void signUpPlayer(Player player) {
-        System.out.print("=========================================");
+        System.out.println("=========================================");
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter your username: ");
+        System.out.println("Enter your username: ");
         String username = scanner.nextLine();
         LoginRequest loginRequest = new LoginRequest(username);
         PlayerClient playerClient = new PlayerClient();

@@ -8,11 +8,11 @@ import java.util.Scanner;
 public class  SignIn {
 
     public static void signInPlayer(Player player) {
-        System.out.print("=========================================");
+        System.out.println("=========================================");
         System.out.println("Enter your username to sign in.");
-        System.out.print("=========================================");
+        System.out.println("=========================================");
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter your username: ");
+        System.out.println("Enter your username: ");
         String username = scanner.nextLine();
         LoginRequest loginRequest = new LoginRequest(username);
         PlayerClient playerClient = new PlayerClient();
@@ -24,6 +24,8 @@ public class  SignIn {
             System.out.println("Error during sign-in: " + e.getMessage());
 
         }
+
+
     }
 
 }
