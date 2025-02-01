@@ -7,6 +7,8 @@ import com.algo.common.ObjectMapperSingleton;
 import com.algo.models.LoginRequest;
 import com.algo.models.Player;
 import com.algo.models.UpdatePlayerRequest;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.MediaType;
 
@@ -98,30 +100,43 @@ public class PlayerClient {
         }
     }
 
-    public List<Player> getPlayersSorted() {
+
+
+    public List<Player> getPlayersSorted(int page, int size) throws Exception {
         HttpClient httpClient = HttpClientSingleton.getInstance();
+        String url = Endpoints.BASE_URL + Endpoints.GET_PLAYERS_SORTED +
+                "?page=" + page + "&size=" + size;
+
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(Endpoints.BASE_URL + Endpoints.GET_PLAYERS_SORTED))
-                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .uri(URI.create(url))
                 .GET()
                 .build();
-        HttpResponse<String> response = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).join();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
         if (response.statusCode() == 200) {
             try {
-                List<String> playerJsonList = ObjectMapperSingleton.getInstance().readValue(response.body(), List.class);
+                ObjectMapper objectMapper = ObjectMapperSingleton.getInstance();
+                JsonNode rootNode = objectMapper.readTree(response.body());
+                JsonNode entitiesNode = rootNode.get("entities");
+
                 List<Player> players = new ArrayList<>();
-                for (String playerJson : playerJsonList) {
-                    Player player = Player.fromJson(playerJson, Player.class);
-                    players.add(player);
+                if (entitiesNode != null && entitiesNode.isArray()) {
+                    for (JsonNode playerNode : entitiesNode) {
+                        Player player = objectMapper.treeToValue(playerNode, Player.class);
+                        players.add(player);
+                    }
                 }
                 return players;
-
             } catch (Exception e) {
                 throw new RuntimeException("Failed to parse response", e);
             }
         }
         throw new RuntimeException(response.body());
     }
+
+
+
     private Player getPlayerResponse(HttpClient httpClient, HttpRequest request) {
         HttpResponse<String> response = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()).join();
         if (response.statusCode() == 200) {
