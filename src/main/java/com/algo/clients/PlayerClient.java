@@ -7,7 +7,6 @@ import com.algo.common.ObjectMapperSingleton;
 import com.algo.models.LoginRequest;
 import com.algo.models.Player;
 import com.algo.models.UpdatePlayerRequest;
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.MediaType;
 
 
@@ -21,7 +20,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 
-@ApplicationScoped
 public class PlayerClient {
 
     public CompletableFuture<Player> signIn(LoginRequest loginRequest) {
