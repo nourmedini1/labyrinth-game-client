@@ -11,7 +11,7 @@ public abstract class Endpoints {
     public static final String GET_PLAYER_BY_NAME = "/players/by-name/%s";
     public static final String GET_PLAYERS_SORTED = "/players/sorted";
     public static final String CREATE_CHALLENGE = "/challenges/create";
-    public static final String UPDATE_CHALLENGE = "/challenges/%s";
+    public static final String UPDATE_CHALLENGE = "/challenges";
     public static final String GET_CHALLENGES = "/challenges";
     public static final String ACCEPT_CHALLENGE = "/challenges/%s/accept";
     public static final String DECLINE_CHALLENGE = "/challenges/%s/decline";
