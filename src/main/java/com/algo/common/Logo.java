@@ -7,7 +7,7 @@ public class Logo {
 
         //the ASCII art:
         String asciiArt = """
-                
+               \s
                                ▗▖    ▗▄▖ ▗▄▄▖▗▖  ▗▖▗▄▄▖ ▗▄▄▄▖▗▖  ▗▖▗▄▄▄▖▗▖ ▗▖
                                ▐▌   ▐▌ ▐▌▐▌ ▐▌▝▚▞▘ ▐▌ ▐▌  █  ▐▛▚▖▐▌  █  ▐▌ ▐▌
                                ▐▌   ▐▛▀▜▌▐▛▀▚▖ ▐▌  ▐▛▀▚▖  █  ▐▌ ▝▜▌  █  ▐▛▀▜▌
@@ -15,8 +15,8 @@ public class Logo {
                                                                             \s
                                                                             \s
                                                                             \s
-                
-        """;
+               \s
+       \s""";
 
         String blueColor = "\u001B[34m"; // ANSI escape code for blue
         String resetColor = "\u001B[0m"; // Reset color

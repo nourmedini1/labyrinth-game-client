@@ -45,7 +45,7 @@ public class Welcome {
 
         //the ASCII art:
         String asciiArt = """
-                
+               \s
                                ▗▖    ▗▄▖ ▗▄▄▖▗▖  ▗▖▗▄▄▖ ▗▄▄▄▖▗▖  ▗▖▗▄▄▄▖▗▖ ▗▖
                                ▐▌   ▐▌ ▐▌▐▌ ▐▌▝▚▞▘ ▐▌ ▐▌  █  ▐▛▚▖▐▌  █  ▐▌ ▐▌
                                ▐▌   ▐▛▀▜▌▐▛▀▚▖ ▐▌  ▐▛▀▚▖  █  ▐▌ ▝▜▌  █  ▐▛▀▜▌
@@ -53,8 +53,8 @@ public class Welcome {
                                                                             \s
                                                                             \s
                                                                             \s
-                
-        """;
+               \s
+       \s""";
 
         String blueColor = "\u001B[34m"; // ANSI escape code for blue
         String resetColor = "\u001B[0m"; // Reset color

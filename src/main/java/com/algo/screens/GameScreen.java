@@ -8,7 +8,6 @@ import java.util.Scanner;
 import static com.algo.common.ClearConsole.clearConsole;
 import static com.algo.common.Color.*;
 import static com.algo.common.Logo.displayLogo;
-import com.algo.common.Color.*;
 
 public class GameScreen {
 
@@ -33,7 +32,7 @@ public class GameScreen {
 
             displayPlayerInfo(player.getName(), player.getScore());
 
-            displayLabyrinth(labyrinth, playerPosition, BG_BLUE, BG_GREEN, BG_YELLOW, RESET);
+            displayLabyrinth(labyrinth, playerPosition);
 
             Coordinates newPosition = getNextPosition(scanner, playerPosition);
 
@@ -47,7 +46,7 @@ public class GameScreen {
                 if (playerPosition.getX() == labyrinth.getEnd().getX() &&
                         playerPosition.getY() == labyrinth.getEnd().getY()) {
                     clearConsole();
-                    displayLabyrinth(labyrinth, playerPosition, BG_BLUE, BG_GREEN, BG_YELLOW, RESET);
+                    displayLabyrinth(labyrinth, playerPosition);
                     System.out.println("Congratulations! You've reached the end!");
                     System.out.println("Your path: " + playerPath);
                     break;
@@ -110,7 +109,7 @@ public class GameScreen {
         return !labyrinth.getNodes().get(y).get(x).isWall();
     }
 
-    private void displayLabyrinth(Labyrinth labyrinth, Coordinates playerPosition, String playerColor, String startColor, String endColor, String resetColor) {
+    private void displayLabyrinth(Labyrinth labyrinth, Coordinates playerPosition) {
         List<List<Node>> nodes = labyrinth.getNodes();
         Coordinates start = labyrinth.getStart();
         Coordinates end = labyrinth.getEnd();
@@ -121,13 +120,13 @@ public class GameScreen {
 
                 if (playerPosition.getX() == x && playerPosition.getY() == y) {
                     // Player's current position
-                    System.out.print(playerColor + "P" + resetColor + " ");
+                    System.out.print(BG_BLUE + "P" + RESET + " ");
                 } else if (start.getX() == x && start.getY() == y) {
                     // Start position
-                    System.out.print(startColor + node.getValue() + resetColor + " ");
+                    System.out.print(BG_GREEN + node.getValue() + RESET + " ");
                 } else if (end.getX() == x && end.getY() == y) {
                     // End position
-                    System.out.print(endColor + node.getValue() + resetColor + " ");
+                    System.out.print(BG_YELLOW + node.getValue() + RESET + " ");
                 } else {
                     // Regular node
                     System.out.print(node.getValue() + " ");
