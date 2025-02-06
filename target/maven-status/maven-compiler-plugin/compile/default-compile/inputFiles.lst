@@ -22,7 +22,9 @@
 /home/karim/labyrinth-game-client/src/main/java/com/algo/models/UpdateChallengeRequest.java
 /home/karim/labyrinth-game-client/src/main/java/com/algo/models/UpdateChallengeResponse.java
 /home/karim/labyrinth-game-client/src/main/java/com/algo/models/UpdatePlayerRequest.java
+/home/karim/labyrinth-game-client/src/main/java/com/algo/screens/CreateChallengeScreen.java
 /home/karim/labyrinth-game-client/src/main/java/com/algo/screens/GameScreen.java
+/home/karim/labyrinth-game-client/src/main/java/com/algo/screens/PlayerScreen.java
 /home/karim/labyrinth-game-client/src/main/java/com/algo/screens/PlayerSelectionScreen.java
 /home/karim/labyrinth-game-client/src/main/java/com/algo/screens/SignIn.java
 /home/karim/labyrinth-game-client/src/main/java/com/algo/screens/SignUp.java
