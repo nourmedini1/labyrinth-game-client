@@ -5,6 +5,8 @@ com/algo/clients/ChallengeClient.class
 com/algo/common/singletons/ObjectMapperSingleton.class
 com/algo/screens/SignIn.class
 com/algo/clients/LabyrinthClient.class
+com/algo/screens/PlayerScreen.class
+com/algo/screens/CreateChallengeScreen.class
 com/algo/models/UpdateChallengeRequest.class
 com/algo/models/UpdatePlayerRequest.class
 com/algo/models/LoginRequest.class
