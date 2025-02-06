@@ -1,4 +1,5 @@
 package com.algo.screens;
+import com.algo.clients.PlayerClient;
 import com.algo.common.singletons.RedisClientSingleton;
 import com.algo.models.*;
 
@@ -9,59 +10,176 @@ import java.util.Scanner;
 import static com.algo.common.ui.ClearConsole.clearConsole;
 import static com.algo.common.ui.Color.*;
 import static com.algo.common.ui.Logo.displayLogo;
+import static com.algo.screens.PlayerScreen.displayMenu;
 
 public class GameScreen {
 
-
     public void gameLoop(Labyrinth labyrinth) {
-
-
-        Coordinates playerPosition=labyrinth.getStart();
-
-
-
+        Coordinates playerPosition = labyrinth.getStart();
         List<Coordinates> playerPath = new ArrayList<>();
         playerPath.add(new Coordinates(playerPosition.getX(), playerPosition.getY()));
         Scanner scanner = new Scanner(System.in);
-
         RedisClientSingleton redisClient = RedisClientSingleton.getInstance();
         Player player = Player.fromJson(redisClient.getData("player"), Player.class);
 
-        while(true){
+        // Step limit calculation
+        List<Coordinates> shortestPath = labyrinth.getShortestPath();
+        int stepLimit = (shortestPath != null && !shortestPath.isEmpty())
+                ? (shortestPath.size() - 1) + 10
+                : 20;
 
+        int stepsTaken = 0;
+        boolean gameWon = false;
+        boolean exitedViaMenu = false;
 
-            clearConsole(); // Clear the console
+        while(true) {
+            clearConsole();
             displayLogo();
-            displayPlayerInfo(player.getName(), player.getScore());
-
+            displayPlayerInfo(
+                    player.getName(),
+                    player.getScore(),
+                    stepLimit - stepsTaken
+            );
             displayLabyrinth(labyrinth, playerPosition);
 
             Coordinates newPosition = getNextPosition(scanner, playerPosition);
 
-            if (isValidMove(newPosition, labyrinth)) {
-                playerPosition.setX(newPosition.getX());
-                playerPosition.setY(newPosition.getY());
-                playerPath.add(new Coordinates(playerPosition.getX(), playerPosition.getY()));
-                player.setScore(player.getScore()+1);
+            // Handle menu exit
+            if (newPosition == null) {
+                exitedViaMenu = true;
+                break;
+            }
 
-                // Check win condition
-                if (playerPosition.getX() == labyrinth.getEnd().getX() &&
-                        playerPosition.getY() == labyrinth.getEnd().getY()) {
+            if (isValidMove(newPosition, labyrinth)) {
+                playerPosition = new Coordinates(newPosition.getX(), newPosition.getY());
+                playerPath.add(playerPosition);
+                stepsTaken++;
+
+                if (stepsTaken > stepLimit) {
                     clearConsole();
                     displayLabyrinth(labyrinth, playerPosition);
-                    System.out.println("Congratulations! You've reached the end!");
-                    System.out.println("Your path: " + playerPath);
+                    System.out.println(RED + "Out of steps! Game Over." + RESET);
+                    System.out.println("Maximum allowed steps: " + stepLimit);
+                    break;
+                }
+
+                if (playerPosition.equals(labyrinth.getEnd())) {
+                    gameWon = true;
                     break;
                 }
             } else {
-                System.out.println("Invalid move! Try again.");
+                System.out.println(RED + "Invalid move! Try again." + RESET);
             }
         }
 
 
-        scanner.close();
+
+        if (exitedViaMenu) {
+            handleMenuExit(player);
+        } else if (gameWon) {
+            handleGameCompletion(labyrinth, player, playerPath, stepsTaken);
+        } else {
+            handleStepLimitLoss(player, stepsTaken);
+        }
+    }
+
+    private void handleMenuExit(Player player) {
+        int penalty = 5;
+        player.setScore(player.getScore() - penalty);
+        savePlayerProgress(player);
+        System.out.println(RED + "\nExited to menu. " + penalty + " points deducted!" + RESET);
+
+    }
+
+    private void handleStepLimitLoss(Player player, int stepsTaken) {
+        player.setScore(player.getScore() - stepsTaken);
+        savePlayerProgress(player);
+
+    }
+
+    private Coordinates getNextPosition(Scanner scanner, Coordinates currentPosition) {
+        System.out.print("Move using (Z/Q/S/D) or B to go back: ");
+        String input = scanner.nextLine().toLowerCase();
+
+        if (input.equals("b")) {
+            return null;
+        }
+
+        Coordinates newPosition = new Coordinates(currentPosition.getX(), currentPosition.getY());
+        switch (input) {
+            case "z": // Up
+                newPosition.setY(newPosition.getY() - 1);
+                break;
+            case "s": // Down
+                newPosition.setY(newPosition.getY() + 1);
+                break;
+            case "q": // Left
+                newPosition.setX(newPosition.getX() - 1);
+                break;
+            case "d": // Right
+                newPosition.setX(newPosition.getX() + 1);
+                break;
+            default:
+                System.out.println("Invalid input. Use Z/Q/S/D to move or B to exit.");
+                break;
+        }
+        return newPosition;
+    }
+
+    private void handleGameCompletion(Labyrinth labyrinth, Player player,
+                                      List<Coordinates> playerPath, int stepsTaken) {
+        clearConsole();
+        displayLabyrinth(labyrinth, labyrinth.getEnd());
+
+        // Calculate bonus
+        boolean bonusEarned = false;
+        List<Coordinates> shortestPath = labyrinth.getShortestPath();
+        if (shortestPath != null && !shortestPath.isEmpty()) {
+            int shortestLength = shortestPath.size() - 1;
+
+            if (stepsTaken == shortestLength) {
+                player.setScore(player.getScore() + 10);
+                bonusEarned = true;
+            }
+        }
+
+        System.out.println(GREEN + "\nCongratulations! You've reached the end!" + RESET);
+//        System.out.println("Your path (" + stepsTaken + " steps):");
+//        displayPath(playerPath);
+
+        if (bonusEarned) {
+            System.out.println(YELLOW + "\nBonus! You took the shortest path! +10 points" + RESET);
+        }
+
+        savePlayerProgress(player);
+    }
+
+    private void displayPlayerInfo(String playerName, int playerScore, int remainingSteps) {
+        System.out.println("===================================");
+        System.out.printf("Player: %s | Score: %d | Steps Left: %d%n",
+                playerName, playerScore, remainingSteps);
+        System.out.println("===================================");
+    }
+
+//    private void displayPath(List<Coordinates> path) {
+//        for (int i = 0; i < path.size(); i++) {
+//            Coordinates coord = path.get(i);
+//            System.out.printf("[%d] (%d,%d)%s",
+//                    i, coord.getX(), coord.getY(),
+//                    (i < path.size()-1) ? " → " : "\n");
+//        }
+//    }
+
+    private void savePlayerProgress(Player player) {
+        try {
+            // Save to Redis
+            RedisClientSingleton.getInstance().saveData("player", player.toJson());
 
 
+            System.out.println(CYAN + "\nProgress saved successfully!" + RESET);
+        } catch (Exception e) {
+            System.out.println(RED + "\nError saving progress: " + e.getMessage() + RESET);
+        }
     }
 
 
@@ -71,32 +189,6 @@ public class GameScreen {
         System.out.println("===================================");
     }
 
-    private Coordinates getNextPosition(Scanner scanner, Coordinates currentPosition) {
-        // Get player input
-        System.out.print("Move using (Z/Q/S/D): ");
-        String input = scanner.nextLine();
-
-        // Calculate the new position based on input
-        Coordinates newPosition = new Coordinates(currentPosition.getX(), currentPosition.getY());
-        switch (input.toLowerCase()) {
-            case "z": // Move up
-                newPosition.setY(newPosition.getY() - 1);
-                break;
-            case "s": // Move down
-                newPosition.setY(newPosition.getY() + 1);
-                break;
-            case "q": // Move left
-                newPosition.setX(newPosition.getX() - 1);
-                break;
-            case "d": // Move right
-                newPosition.setX(newPosition.getX() + 1);
-                break;
-            default:
-                System.out.println("Invalid input. Use Z/Q/S/D to move.");
-                break;
-        }
-        return newPosition;
-    }
 
     private boolean isValidMove(Coordinates position, Labyrinth labyrinth) {
         int x = position.getX();

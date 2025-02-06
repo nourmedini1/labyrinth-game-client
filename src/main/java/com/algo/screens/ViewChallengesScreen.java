@@ -5,9 +5,7 @@ package com.algo.screens;
 import com.algo.clients.ChallengeClient;
 import com.algo.clients.LabyrinthClient;
 import com.algo.common.singletons.RedisClientSingleton;
-import com.algo.models.Challenge;
-import com.algo.models.Labyrinth;
-import com.algo.models.Player;
+import com.algo.models.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -116,12 +114,15 @@ public class ViewChallengesScreen {
             GameScreen gameScreen=new GameScreen();
             gameScreen.gameLoop(labyrinth);
 
+            updateChallengeScore(challenge.getId());
 
 
         } catch (Exception e) {
             System.out.println("Error accepting challenge: " + e.getMessage());
         }
     }
+
+
 
     private static void declineChallenge(Challenge challenge) {
         try {
@@ -139,4 +140,29 @@ public class ViewChallengesScreen {
     private static int updateCurrentPage(String input, int currentPage) {
         return input.equals("n") ? currentPage + 1 : currentPage - 1;
     }
+
+    private static  void updateChallengeScore(String challengeId){
+        ChallengeClient challengeClient = new ChallengeClient();
+        Player player= getCurrentPlayerFromRedis();
+
+        // Create an UpdateChallengeRequest object
+        UpdateChallengeRequest updateRequest = new UpdateChallengeRequest();
+        updateRequest.setChallengedScore(player.getScore());
+
+
+        // Call the updateChallenge method
+        UpdateChallengeResponse response = challengeClient.updateChallenge(challengeId, updateRequest);
+
+        // Print the response message
+        System.out.println("Response Message: " + response.getMessage());
+    }
+
+    private static Player getCurrentPlayerFromRedis() {
+        String playerJson = RedisClientSingleton.getInstance().getData("player");
+        if (playerJson == null || playerJson.isEmpty()) {
+            throw new RuntimeException("No player signed in. Please sign in first.");
+        }
+        return Player.fromJson(playerJson, Player.class);
+    }
+
 }

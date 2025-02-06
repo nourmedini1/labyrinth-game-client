@@ -3,10 +3,8 @@ package com.algo.screens;
 import com.algo.clients.ChallengeClient;
 import com.algo.clients.LabyrinthClient;
 import com.algo.common.singletons.RedisClientSingleton;
-import com.algo.models.Challenge;
-import com.algo.models.CreateChallengeRequest;
-import com.algo.models.Labyrinth;
-import com.algo.models.Player;
+import com.algo.models.*;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
@@ -114,8 +112,26 @@ public class CreateChallengeScreen {
             Labyrinth labyrinth = new LabyrinthClient().getLabyrinth(challenge.getLabyrinthId());
             GameScreen gameScreen= new GameScreen();
             gameScreen.gameLoop(labyrinth);
+            updateChallengeScore(challenge.getId());
+
         } catch (Exception e) {
             System.out.println("Error starting game: " + e.getMessage());
         }
+    }
+
+    private static  void updateChallengeScore(String challengeId){
+        ChallengeClient challengeClient = new ChallengeClient();
+        Player player= getCurrentPlayerFromRedis();
+
+        // Create an UpdateChallengeRequest object
+        UpdateChallengeRequest updateRequest = new UpdateChallengeRequest();
+        updateRequest.setChallengerScore(player.getScore());
+
+
+        // Call the updateChallenge method
+        UpdateChallengeResponse response = challengeClient.updateChallenge(challengeId, updateRequest);
+
+        // Print the response message
+        System.out.println("Response Message: " + response.getMessage());
     }
 }

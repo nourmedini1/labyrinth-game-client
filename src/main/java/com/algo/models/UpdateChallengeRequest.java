@@ -11,6 +11,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UpdateChallengeRequest extends JsonMappable {
-    private String challengerScore;
-    private String challengedScore;
+    private int challengerScore;
+    private int challengedScore;
 }
