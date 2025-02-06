@@ -1,9 +1,9 @@
 package com.algo.clients;
 
-import com.algo.common.Endpoints;
-import com.algo.common.HttpClientSingleton;
-import com.algo.common.HttpHelper;
-import com.algo.common.ObjectMapperSingleton;
+import com.algo.common.http.Endpoints;
+import com.algo.common.singletons.HttpClientSingleton;
+import com.algo.common.http.HttpHelper;
+import com.algo.common.singletons.ObjectMapperSingleton;
 import com.algo.models.LoginRequest;
 import com.algo.models.Player;
 import com.algo.models.UpdatePlayerRequest;

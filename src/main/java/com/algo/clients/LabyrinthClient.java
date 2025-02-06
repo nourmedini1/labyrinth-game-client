@@ -1,7 +1,7 @@
 package com.algo.clients;
 
-import com.algo.common.Endpoints;
-import com.algo.common.HttpClientSingleton;
+import com.algo.common.http.Endpoints;
+import com.algo.common.singletons.HttpClientSingleton;
 import com.algo.models.Labyrinth;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.MediaType;

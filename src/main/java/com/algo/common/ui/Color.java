@@ -1,4 +1,4 @@
-package com.algo.common;
+package com.algo.common.ui;
 
 public class Color {
     public static final String RESET = "\u001B[0m";

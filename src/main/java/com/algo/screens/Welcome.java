@@ -8,7 +8,7 @@ import static com.algo.screens.SignIn.signInPlayer;
 import static com.algo.screens.SignUp.signUpPlayer;
 
 public class Welcome {
-    public static void WelcomePlayer(Player player){
+    public static void WelcomePlayer(){
 
         Scanner scanner = new Scanner(System.in);
         System.out.println("===================================");
@@ -24,14 +24,14 @@ public class Welcome {
 
         switch (choice) {
             case "1":
-                signInPlayer(player);
+                signInPlayer();
                 break;
             case "2":
-                signUpPlayer(player);
+                signUpPlayer();
                 break;
             default:
                 System.out.println("Invalid option. Please try again.");
-                WelcomePlayer(player);
+                WelcomePlayer();
         }
     }
 

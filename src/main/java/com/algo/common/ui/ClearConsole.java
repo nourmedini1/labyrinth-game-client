@@ -1,4 +1,4 @@
-package com.algo.common;
+package com.algo.common.ui;
 
 public class ClearConsole {
     public static void clearConsole() {

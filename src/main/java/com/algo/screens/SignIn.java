@@ -1,13 +1,14 @@
 package com.algo.screens;
 
 import com.algo.clients.PlayerClient;
+import com.algo.common.singletons.RedisClientSingleton;
 import com.algo.models.LoginRequest;
 import com.algo.models.Player;
 import java.util.Scanner;
 
 public class  SignIn {
 
-    public static void signInPlayer(Player player) {
+    public static void signInPlayer() {
         System.out.println("=========================================");
         System.out.println("Enter your username to sign in.");
         System.out.println("=========================================");
@@ -17,7 +18,9 @@ public class  SignIn {
         LoginRequest loginRequest = new LoginRequest(username);
         PlayerClient playerClient = new PlayerClient();
         try {
-            player = playerClient.signIn(loginRequest);
+            Player player = playerClient.signIn(loginRequest);
+            RedisClientSingleton redisClient = RedisClientSingleton.getInstance();
+            redisClient.saveData("player", player.toJson());
             System.out.println("Signed in as: " + player.getName());
 
         } catch (Exception e) {

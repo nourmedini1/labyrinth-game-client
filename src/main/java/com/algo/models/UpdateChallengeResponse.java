@@ -1,6 +1,6 @@
 package com.algo.models;
 
-import com.algo.common.JsonMappable;
+import com.algo.common.http.JsonMappable;
 import lombok.*;
 
 @AllArgsConstructor

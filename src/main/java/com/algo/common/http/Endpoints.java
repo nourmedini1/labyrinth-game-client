@@ -1,4 +1,4 @@
-package com.algo.common;
+package com.algo.common.http;
 
 public abstract class Endpoints {
 

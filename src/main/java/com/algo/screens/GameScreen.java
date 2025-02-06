@@ -1,18 +1,19 @@
 package com.algo.screens;
+import com.algo.common.singletons.RedisClientSingleton;
 import com.algo.models.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import static com.algo.common.ClearConsole.clearConsole;
-import static com.algo.common.Color.*;
-import static com.algo.common.Logo.displayLogo;
+import static com.algo.common.ui.ClearConsole.clearConsole;
+import static com.algo.common.ui.Color.*;
+import static com.algo.common.ui.Logo.displayLogo;
 
 public class GameScreen {
 
 
-    public void gameLoop(Labyrinth labyrinth, Player player) {
+    public void gameLoop(Labyrinth labyrinth) {
 
 
         Coordinates playerPosition=labyrinth.getStart();
@@ -23,13 +24,14 @@ public class GameScreen {
         playerPath.add(new Coordinates(playerPosition.getX(), playerPosition.getY()));
         Scanner scanner = new Scanner(System.in);
 
+        RedisClientSingleton redisClient = RedisClientSingleton.getInstance();
+        Player player = Player.fromJson(redisClient.getData("player"), Player.class);
 
         while(true){
 
 
             clearConsole(); // Clear the console
             displayLogo();
-
             displayPlayerInfo(player.getName(), player.getScore());
 
             displayLabyrinth(labyrinth, playerPosition);

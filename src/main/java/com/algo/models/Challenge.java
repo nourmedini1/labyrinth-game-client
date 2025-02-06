@@ -1,11 +1,8 @@
 package com.algo.models;
 
 
-import com.algo.common.JsonMappable;
+import com.algo.common.http.JsonMappable;
 
-import com.algo.common.ObjectMapperSingleton;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
