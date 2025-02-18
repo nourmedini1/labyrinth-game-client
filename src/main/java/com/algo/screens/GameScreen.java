@@ -81,6 +81,7 @@ public class GameScreen {
         } else {
             handleStepLimitLoss(player, stepsTaken);
         }
+        savePlayerProgress(player);
     }
 
     private void handleMenuExit(Player player) {
@@ -108,16 +109,16 @@ public class GameScreen {
         Coordinates newPosition = new Coordinates(currentPosition.getX(), currentPosition.getY());
         switch (input) {
             case "z": // Up
-                newPosition.setY(newPosition.getY() - 1);
-                break;
-            case "s": // Down
-                newPosition.setY(newPosition.getY() + 1);
-                break;
-            case "q": // Left
                 newPosition.setX(newPosition.getX() - 1);
                 break;
-            case "d": // Right
+            case "s": // Down
                 newPosition.setX(newPosition.getX() + 1);
+                break;
+            case "q": // Left
+                newPosition.setY(newPosition.getY() - 1);
+                break;
+            case "d": // Right
+                newPosition.setY(newPosition.getY() + 1);
                 break;
             default:
                 System.out.println("Invalid input. Use Z/Q/S/D to move or B to exit.");
@@ -150,6 +151,7 @@ public class GameScreen {
         if (bonusEarned) {
             System.out.println(YELLOW + "\nBonus! You took the shortest path! +10 points" + RESET);
         }
+        System.out.println("score= "+player.getScore());
 
         savePlayerProgress(player);
     }
@@ -175,10 +177,24 @@ public class GameScreen {
             // Save to Redis
             RedisClientSingleton.getInstance().saveData("player", player.toJson());
 
+            // Update player in backend
+            PlayerClient playerClient = new PlayerClient();
+            UpdatePlayerRequest updateRequest = new UpdatePlayerRequest();
+            updateRequest.setName(player.getName());
+            updateRequest.setScore(player.getScore());
+
+            System.out.println("Sending update request for player ID: " + player.getId());
+            System.out.println("Name: " + player.getName());
+            System.out.println("Score: " + player.getScore());
+
+            Player updatedPlayer = playerClient.updatePlayer(player.getId(), updateRequest);
+
+            System.out.println("Update successful. New score: " + updatedPlayer.getScore());
 
             System.out.println(CYAN + "\nProgress saved successfully!" + RESET);
         } catch (Exception e) {
             System.out.println(RED + "\nError saving progress: " + e.getMessage() + RESET);
+            e.printStackTrace();
         }
     }
 
@@ -195,30 +211,34 @@ public class GameScreen {
         int y = position.getY();
 
         // Check if within bounds
-        if (x < 0 || x >= labyrinth.getWidth() || y < 0 || y >= labyrinth.getHeight()) {
+        if (y < 0 || y >= labyrinth.getWidth() || x< 0 || x >= labyrinth.getHeight()) {
             return false;
         }
 
         // Check if the node is not a wall
-        return !labyrinth.getNodes().get(y).get(x).isWall();
+        return !labyrinth.getNodes().get(x).get(y).isWall();
     }
 
     private void displayLabyrinth(Labyrinth labyrinth, Coordinates playerPosition) {
         List<List<Node>> nodes = labyrinth.getNodes();
         Coordinates start = labyrinth.getStart();
         Coordinates end = labyrinth.getEnd();
+        System.out.println("Start position: (" + start.getX() + "," + start.getY() + ")");
+        System.out.println("End position: (" + end.getX() + "," + end.getY() + ")");
+        System.out.println("Player position: (" + playerPosition.getX() + "," + playerPosition.getY() + ")");
+        System.out.println("Labyrinth dimensions: " + labyrinth.getWidth() + "x" + labyrinth.getHeight());
 
         for (int y = 0; y < labyrinth.getHeight(); y++) {
             for (int x = 0; x < labyrinth.getWidth(); x++) {
                 Node node = nodes.get(y).get(x);
 
-                if (playerPosition.getX() == x && playerPosition.getY() == y) {
+                if (playerPosition.getY() == x && playerPosition.getX() == y) {
                     // Player's current position
                     System.out.print(BG_BLUE + "P" + RESET + " ");
-                } else if (start.getX() == x && start.getY() == y) {
+                } else if (start.getY() == x && start.getX() == y) {
                     // Start position
                     System.out.print(BG_GREEN + node.getValue() + RESET + " ");
-                } else if (end.getX() == x && end.getY() == y) {
+                } else if (end.getY() == x && end.getX() == y) {
                     // End position
                     System.out.print(BG_YELLOW + node.getValue() + RESET + " ");
                 } else {

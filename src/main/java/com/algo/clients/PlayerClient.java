@@ -73,17 +73,27 @@ public class PlayerClient {
         return getPlayerResponse(httpClient, request);
     }
 
-    public Player updatePlayer(String id,UpdatePlayerRequest updatePlayerRequest) {
+    public Player updatePlayer(String id, UpdatePlayerRequest updatePlayerRequest) {
         HttpClient httpClient = HttpClientSingleton.getInstance();
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("name", updatePlayerRequest.getName());
-        params.put("score", updatePlayerRequest.getScore());
-        String formData =  HttpHelper.createFormUrlEncodedBody(params);
+
+        // Create multipart form data boundary
+        String boundary = "----WebKitFormBoundary" + System.currentTimeMillis();
+
+        // Create the multipart form data body
+        String formBody = "--" + boundary + "\r\n" +
+                "Content-Disposition: form-data; name=\"name\"\r\n\r\n" +
+                updatePlayerRequest.getName() + "\r\n" +
+                "--" + boundary + "\r\n" +
+                "Content-Disposition: form-data; name=\"score\"\r\n\r\n" +
+                updatePlayerRequest.getScore() + "\r\n" +
+                "--" + boundary + "--\r\n";
+
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(Endpoints.BASE_URL + Endpoints.injectStringIntoPath(Endpoints.UPDATE_PLAYER, id)))
-                .header("Content-Type", MediaType.MULTIPART_FORM_DATA)
-                .PUT(HttpRequest.BodyPublishers.ofString(formData))
+                .header("Content-Type", "multipart/form-data; boundary=" + boundary)
+                .PUT(HttpRequest.BodyPublishers.ofString(formBody))
                 .build();
+
         return getPlayerResponse(httpClient, request);
     }
 
