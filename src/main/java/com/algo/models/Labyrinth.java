@@ -25,7 +25,7 @@ public class Labyrinth extends JsonMappable {
     private int width;
 
     private int height;
-
+    private List<String> words;
     private List<Coordinates> shortestPath;
 
 }

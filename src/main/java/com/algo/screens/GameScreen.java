@@ -11,10 +11,13 @@ import static com.algo.common.ui.ClearConsole.clearConsole;
 import static com.algo.common.ui.Color.*;
 import static com.algo.common.ui.Logo.displayLogo;
 import static com.algo.screens.PlayerScreen.displayMenu;
+import  com.algo.common.trie.Trie;
 
 public class GameScreen {
 
-    public void gameLoop(Labyrinth labyrinth) {
+    public void gameLoop(Labyrinth labyrinth, Trie trie) {
+        String fullPath = "";
+        int currentScore = 0;
         Coordinates playerPosition = labyrinth.getStart();
         List<Coordinates> playerPath = new ArrayList<>();
         playerPath.add(new Coordinates(playerPosition.getX(), playerPosition.getY()));
@@ -37,7 +40,7 @@ public class GameScreen {
             displayLogo();
             displayPlayerInfo(
                     player.getName(),
-                    player.getScore(),
+                    currentScore,
                     stepLimit - stepsTaken
             );
             displayLabyrinth(labyrinth, playerPosition);
@@ -54,7 +57,8 @@ public class GameScreen {
                 playerPosition = new Coordinates(newPosition.getX(), newPosition.getY());
                 playerPath.add(playerPosition);
                 stepsTaken++;
-
+                fullPath += labyrinth.getNodes().get(playerPosition.getX()).get(playerPosition.getY()).getValue();
+                currentScore += trie.containsSubword(fullPath);
                 if (stepsTaken > stepLimit) {
                     clearConsole();
                     displayLabyrinth(labyrinth, playerPosition);
@@ -65,6 +69,7 @@ public class GameScreen {
 
                 if (playerPosition.equals(labyrinth.getEnd())) {
                     gameWon = true;
+                    player.setScore(player.getScore() + trie.containsSubword(fullPath));
                     break;
                 }
             } else {

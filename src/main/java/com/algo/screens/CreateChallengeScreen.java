@@ -3,6 +3,7 @@ package com.algo.screens;
 import com.algo.clients.ChallengeClient;
 import com.algo.clients.LabyrinthClient;
 import com.algo.common.singletons.RedisClientSingleton;
+import com.algo.common.trie.Trie;
 import com.algo.models.*;
 
 import java.util.Arrays;
@@ -110,8 +111,14 @@ public class CreateChallengeScreen {
         try {
             System.out.println("\nStarting challenge...");
             Labyrinth labyrinth = new LabyrinthClient().getLabyrinth(challenge.getLabyrinthId());
+            List<String> words = labyrinth.getWords();
+            Trie trie = new Trie();
+            for(String word : words){
+                trie.insert(word);
+            }
+
             GameScreen gameScreen= new GameScreen();
-            gameScreen.gameLoop(labyrinth);
+            gameScreen.gameLoop(labyrinth, trie);
             updateChallengeScore(challenge.getId());
 
         } catch (Exception e) {
