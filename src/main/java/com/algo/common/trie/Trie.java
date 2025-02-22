@@ -23,21 +23,19 @@ public class Trie {
     }
 
     public int containsSubword(String word) {
-        if (foundWords.contains(word)) {
-            return 0; // Word already scored
-        }
-
         for (int i = 0; i < word.length(); i++) {
             TrieNode node = root;
+            String currentWord = "";
             for (int j = i; j < word.length(); j++) {
                 char c = word.charAt(j);
+                currentWord += c;
                 if (!node.children.containsKey(c)) {
                     break;
                 }
                 node = node.children.get(c);
-                if (node.isEndOfWord) {
-                    foundWords.add(word);
-                    return word.length();
+                if (node.isEndOfWord && !foundWords.contains(currentWord)) {
+                    foundWords.add(currentWord);
+                    return currentWord.length();
                 }
             }
         }

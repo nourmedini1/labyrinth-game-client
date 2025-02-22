@@ -118,7 +118,7 @@ public class CreateChallengeScreen {
             }
 
             GameScreen gameScreen= new GameScreen();
-            gameScreen.gameLoop(labyrinth, trie);
+            gameScreen.gameLoop(labyrinth, trie, challenge.getDifficultyLevel());
             updateChallengeScore(challenge.getId());
 
         } catch (Exception e) {
@@ -139,6 +139,6 @@ public class CreateChallengeScreen {
         UpdateChallengeResponse response = challengeClient.updateChallenge(challengeId, updateRequest);
 
         // Print the response message
-        System.out.println("Response Message: " + response.getMessage());
+        //System.out.println("Response Message: " + response.getMessage());
     }
 }

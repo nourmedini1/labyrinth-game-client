@@ -15,7 +15,7 @@ import  com.algo.common.trie.Trie;
 
 public class GameScreen {
 
-    public void gameLoop(Labyrinth labyrinth, Trie trie) {
+    public void gameLoop(Labyrinth labyrinth, Trie trie, int difficultyLevel) {
         String fullPath = "";
         int currentScore = 0;
         Coordinates playerPosition = labyrinth.getStart();
@@ -69,7 +69,7 @@ public class GameScreen {
 
                 if (playerPosition.equals(labyrinth.getEnd())) {
                     gameWon = true;
-                    player.setScore(player.getScore() + trie.containsSubword(fullPath));
+                    player.setScore(player.getScore() + currentScore*difficultyLevel);
                     break;
                 }
             } else {
@@ -86,7 +86,7 @@ public class GameScreen {
         } else {
             handleStepLimitLoss(player, stepsTaken);
         }
-        savePlayerProgress(player);
+        //savePlayerProgress(player);
     }
 
     private void handleMenuExit(Player player) {
@@ -98,7 +98,8 @@ public class GameScreen {
     }
 
     private void handleStepLimitLoss(Player player, int stepsTaken) {
-        player.setScore(player.getScore() - stepsTaken);
+//        player.setScore(player.getScore() - stepsTaken);
+        player.setScore(player.getScore() - 1);
         savePlayerProgress(player);
 
     }
@@ -158,6 +159,8 @@ public class GameScreen {
         }
         System.out.println("score= "+player.getScore());
 
+
+
         savePlayerProgress(player);
     }
 
@@ -188,15 +191,15 @@ public class GameScreen {
             updateRequest.setName(player.getName());
             updateRequest.setScore(player.getScore());
 
-            System.out.println("Sending update request for player ID: " + player.getId());
-            System.out.println("Name: " + player.getName());
-            System.out.println("Score: " + player.getScore());
+//            System.out.println("Sending update request for player ID: " + player.getId());
+//            System.out.println("Name: " + player.getName());
+//            System.out.println("Score: " + player.getScore());
 
             Player updatedPlayer = playerClient.updatePlayer(player.getId(), updateRequest);
-
-            System.out.println("Update successful. New score: " + updatedPlayer.getScore());
-
-            System.out.println(CYAN + "\nProgress saved successfully!" + RESET);
+//
+//            System.out.println("Update successful. New score: " + updatedPlayer.getScore());
+//
+//            System.out.println(CYAN + "\nProgress saved successfully!" + RESET);
         } catch (Exception e) {
             System.out.println(RED + "\nError saving progress: " + e.getMessage() + RESET);
             e.printStackTrace();
@@ -228,10 +231,7 @@ public class GameScreen {
         List<List<Node>> nodes = labyrinth.getNodes();
         Coordinates start = labyrinth.getStart();
         Coordinates end = labyrinth.getEnd();
-        System.out.println("Start position: (" + start.getX() + "," + start.getY() + ")");
-        System.out.println("End position: (" + end.getX() + "," + end.getY() + ")");
-        System.out.println("Player position: (" + playerPosition.getX() + "," + playerPosition.getY() + ")");
-        System.out.println("Labyrinth dimensions: " + labyrinth.getWidth() + "x" + labyrinth.getHeight());
+
 
         for (int y = 0; y < labyrinth.getHeight(); y++) {
             for (int x = 0; x < labyrinth.getWidth(); x++) {
@@ -239,7 +239,7 @@ public class GameScreen {
 
                 if (playerPosition.getY() == x && playerPosition.getX() == y) {
                     // Player's current position
-                    System.out.print(BG_BLUE + "P" + RESET + " ");
+                    System.out.print(BG_BLUE + node.getValue() + RESET + " ");
                 } else if (start.getY() == x && start.getX() == y) {
                     // Start position
                     System.out.print(BG_GREEN + node.getValue() + RESET + " ");

@@ -8,6 +8,7 @@
 /home/karim/labyrinth-game-client/src/main/java/com/algo/common/singletons/HttpClientSingleton.java
 /home/karim/labyrinth-game-client/src/main/java/com/algo/common/singletons/ObjectMapperSingleton.java
 /home/karim/labyrinth-game-client/src/main/java/com/algo/common/singletons/RedisClientSingleton.java
+/home/karim/labyrinth-game-client/src/main/java/com/algo/common/trie/Trie.java
 /home/karim/labyrinth-game-client/src/main/java/com/algo/common/ui/ClearConsole.java
 /home/karim/labyrinth-game-client/src/main/java/com/algo/common/ui/Color.java
 /home/karim/labyrinth-game-client/src/main/java/com/algo/common/ui/Logo.java

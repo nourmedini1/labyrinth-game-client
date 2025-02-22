@@ -118,7 +118,7 @@ public class ViewChallengesScreen {
                 trie.insert(word);
             }
             GameScreen gameScreen=new GameScreen();
-            gameScreen.gameLoop(labyrinth ,trie);
+            gameScreen.gameLoop(labyrinth ,trie, challenge.getDifficultyLevel());
 
             updateChallengeScore(challenge.getId());
 

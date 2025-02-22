@@ -12,6 +12,7 @@ com/algo/models/UpdatePlayerRequest.class
 com/algo/models/LoginRequest.class
 com/algo/screens/ViewChallengesScreen.class
 com/algo/models/Node.class
+com/algo/common/trie/TrieNode.class
 com/algo/screens/GameScreen.class
 com/algo/common/http/HttpHelper.class
 com/algo/models/Challenge.class
@@ -24,6 +25,7 @@ com/algo/common/http/JsonMappable.class
 com/algo/common/ui/Color.class
 com/algo/models/CreateChallengeRequest.class
 com/algo/Application.class
+com/algo/common/trie/Trie.class
 com/algo/common/singletons/RedisClientSingleton.class
 com/algo/models/Coordinates.class
 com/algo/common/ui/ClearConsole.class
