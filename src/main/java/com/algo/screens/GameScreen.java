@@ -44,6 +44,8 @@ public class GameScreen {
                     stepLimit - stepsTaken
             );
             displayLabyrinth(labyrinth, playerPosition);
+            System.out.println('\n');
+
 
             Coordinates newPosition = getNextPosition(scanner, playerPosition);
 
