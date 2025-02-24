@@ -1,5 +1,6 @@
-package com.algo.common;
+package com.algo.common.http;
 
+import com.algo.common.singletons.ObjectMapperSingleton;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public abstract class JsonMappable {

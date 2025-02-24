@@ -1,6 +1,6 @@
 package com.algo.models;
 
-import com.algo.common.JsonMappable;
+import com.algo.common.http.JsonMappable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,7 +25,7 @@ public class Labyrinth extends JsonMappable {
     private int width;
 
     private int height;
-
+    private List<String> words;
     private List<Coordinates> shortestPath;
 
 }

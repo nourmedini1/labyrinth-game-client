@@ -1,9 +1,7 @@
 package com.algo.models;
 
-import com.algo.common.JsonMappable;
+import com.algo.common.http.JsonMappable;
 
-import com.algo.common.ObjectMapperSingleton;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,5 +14,13 @@ import lombok.Setter;
 public class Coordinates extends JsonMappable {
     private int x;
     private int y;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Coordinates that = (Coordinates) o;
+        return x == that.x && y == that.y;
+    }
 
 }
